@@ -19,7 +19,7 @@ namespace RetryOperationHelperUnitTests
             Func<Task<bool>> func = () => operationSimulator.SimulateOperationWithFailures();
 
             //Act
-            var result = RetryOperationHelper.ExecuteWithRetry(func, numberOfRetriesToAttempt).Result;
+            var result = RetryOperationHelper.ExecuteWithRetryAsync(func, numberOfRetriesToAttempt).Result;
 
             //Assert 
             Assert.Equal(result, true);
@@ -35,9 +35,9 @@ namespace RetryOperationHelperUnitTests
             var operationSimulator = new OperationSimulator(numberOfFailuresToSimulate);
             Func<Task<bool>> func = () => operationSimulator.SimulateOperationWithFailures();
 
-            //Act
-            Exception ex = Assert.Throws<AggregateException>(() => RetryOperationHelper.ExecuteWithRetry(func, numberOfRetriesToAttempt).Wait());
-            Assert.Equal(ex.InnerException.Message, "OperationSimulator: Simulating Operation Failure");
+			//Act
+			Exception ex = Assert.Throws<AggregateException>(() => RetryOperationHelper.ExecuteWithRetryAsync(func, numberOfRetriesToAttempt).Wait());
+            Assert.Equal(ex.InnerException.InnerException.Message, "OperationSimulator: Simulating Operation Failure");
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace RetryOperationHelperUnitTests
             Action<int, Exception> actionUponFailure = new Action<int, Exception>(operationSimulator.ThrowException);
 
             //Act
-            Exception ex = Assert.Throws<AggregateException>(() => RetryOperationHelper.ExecuteWithRetry(func, numberOfRetriesToAttempt, retryTimeSpan, actionUponFailure).Wait());
+            Exception ex = Assert.Throws<AggregateException>(() => RetryOperationHelper.ExecuteWithRetryAsync(func, numberOfRetriesToAttempt, retryTimeSpan, actionUponFailure).Wait());
             Assert.Equal(ex.InnerException.Message, "OperationSimulator: ThrowException: Exception thrown to identify method");
         }
     }
